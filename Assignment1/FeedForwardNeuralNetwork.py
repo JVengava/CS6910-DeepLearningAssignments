@@ -155,3 +155,29 @@ class FeedForwardNeuralNetwork:
         Y = softmax(A[str(num_layers - 1)])
         H[str(num_layers - 1)] = Y
         return Y, H, A
+		
+    def backPropagation(self, Y, H, A, Y_train_batch):        
+        gradients_weights = []
+        gradients_biases = []
+        num_layers = len(self.layers)
+
+        # Gradient with respect to the output layer
+        if self.loss_function == "CROSS":
+            globals()["grad_a" + str(num_layers - 1)] = -(Y_train_batch - Y)
+        elif self.loss_function == "MSE":
+            globals()["grad_a" + str(num_layers - 1)] = np.multiply(2 * (Y - Y_train_batch), np.multiply(Y, (1 - Y)))
+
+        for l in range(num_layers - 2, -1, -1):
+            globals()["grad_W" + str(l + 1)] = (np.outer(globals()["grad_a" + str(l + 1)], H[str(l)]))            
+            globals()["grad_b" + str(l + 1)] = globals()["grad_a" + str(l + 1)]
+			
+            gradients_weights.append(globals()["grad_W" + str(l + 1)])
+            gradients_biases.append(globals()["grad_b" + str(l + 1)])
+            
+            globals()["grad_h" + str(l)] = np.matmul(self.weights[str(l + 1)].transpose(),globals()["grad_a" + str(l + 1)],)
+            if l != 0:                
+                globals()["grad_a" + str(l)] = np.multiply(globals()["grad_h" + str(l)], self.activation_derivative(A[str(l)]))
+            elif l == 0:                
+                globals()["grad_a" + str(l)] = np.multiply(globals()["grad_h" + str(l)], (A[str(l)]))
+				
+        return gradients_weights, gradients_biases
