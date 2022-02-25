@@ -79,8 +79,7 @@ class FeedForwardNeuralNetwork:
 
       self.initializer_dict = {
           "XAVIER": Xavier_initializer,
-          "RANDOM": random_initializer
-          #"HE": self.He_initializer
+          "RANDOM": random_initializer          
       }
 
       self.optimizer_dict = {
